@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Betuu's Birthday</title>
+
+<style>
+:root {
+  --bg: #fff9f2;
+  --rose: #bd6878;
+  --rose2: #f4d9de;
+  --gold: #c7a15a;
+  --ink: #3b3032;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #fffdf8, #fff7f0 48%, #f7e2e7);
+  color: var(--ink);
+  font-family: Georgia, serif;
+}
+
+.screen {
+  min-height: 100vh;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.screen.active { display: flex; }
+
+.card {
+  width: min(680px, 100%);
+  padding: 28px 22px;
+  background: #ffffffdf;
+  border: 1px solid #c7a15a55;
+  border-radius: 28px;
+  text-align: center;
+  box-shadow: 0 18px 55px #5d414218;
+}
+
+h1 {
+  font-size: clamp(29px, 7vw, 47px);
+  line-height: 1.2;
+  margin: 12px 0;
+}
+
+h2 {
+  font-size: clamp(25px, 6vw, 36px);
+  line-height: 1.25;
+  margin: 5px 0 12px;
+}
+
+p { font-family: system-ui, sans-serif; line-height: 1.5; }
+
+.date {
+  color: var(--gold);
+  letter-spacing: 3px;
+  font: 700 14px system-ui;
+}
+
+button { border: 0; font: inherit; cursor: pointer; }
+
+.primary {
+  margin-top: 18px;
+  padding: 13px 25px;
+  border-radius: 999px;
+  background: #49363a;
+  color: white;
+  box-shadow: 0 8px 20px #49363a22;
+}
+
+.primary.disabled {
+  opacity: .32;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Gift box */
+.giftbox {
+  width: 176px;
+  height: 165px;
+  margin: 0 auto 17px;
+  position: relative;
+  cursor: pointer;
+  animation: float 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 13px 9px #5d41421c);
+}
+
+.box {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 5px;
+  height: 91px;
+  border-radius: 7px 7px 16px 16px;
+  background: linear-gradient(110deg, #d78b98, #c97686 50%, #b85e70);
+}
+
+.box::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 23px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #f1d89a, #dfbd72, #caa253);
+}
+
+.lid {
+  position: absolute;
+  left: 11px;
+  right: 11px;
+  top: 48px;
+  height: 27px;
+  border-radius: 7px;
+  background: linear-gradient(110deg, #d17a8a, #b85e70);
+  z-index: 3;
+  transform-origin: 12% 90%;
+  transition: transform .7s ease;
+}
+
+.ribbon {
+  position: absolute;
+  left: 50%;
+  top: 42px;
+  width: 24px;
+  height: 104px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #f1d89a, #dfbd72, #caa253);
+  z-index: 4;
+  pointer-events: none;
+}
+
+.bow {
+  position: absolute;
+  left: 50%;
+  top: 17px;
+  width: 80px;
+  height: 39px;
+  transform: translateX(-50%);
+  z-index: 5;
+  transition: transform .7s ease;
+}
+
+.bow::before, .bow::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  width: 36px;
+  height: 27px;
+  border: 7px solid #dfbd72;
+  border-radius: 80% 80% 35% 80%;
+  background: #f8e7bc55;
+}
+
+.bow::before { left: 2px; transform: rotate(25deg); }
+.bow::after { right: 2px; transform: scaleX(-1) rotate(25deg); }
+
+.knot {
+  position: absolute;
+  left: 50%;
+  top: 13px;
+  transform: translateX(-50%);
+  width: 19px;
+  height: 18px;
+  border-radius: 6px;
+  background: #c7a15a;
+  z-index: 6;
+}
+
+.giftbox.open .lid { transform: translate(-12px, -25px) rotate(-16deg); }
+.giftbox.open .bow { transform: translate(-50%, -26px) rotate(-12deg); }
+
+@keyframes float {
+  50% { translate: 0 -5px; }
+}
+
+/* Gift options */
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.opt {
+  padding: 13px 10px;
+  border-radius: 15px;
+  background: white;
+  border: 1px solid #ead7da;
+  font: 15px system-ui;
+  color: var(--ink);
+}
+
+.opt.selected, .arr.selected {
+  background: var(--rose2);
+  border-color: var(--rose);
+}
+
+.tick {
+  display: none;
+  color: #9b4054;
+  font-weight: bold;
+  margin-left: 4px;
+}
+
+.selected .tick { display: inline; }
+.special { border-style: dashed; }
+
+.extra {
+  display: none;
+  text-align: left;
+  margin: 10px 0;
+}
+
+.extra.show { display: block; }
+
+.extra label {
+  display: block;
+  font: 13px system-ui;
+  margin: 0 0 6px;
+}
+
+.extra input, .extra textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #decfd1;
+  border-radius: 13px;
+  font: 15px system-ui;
+  background: #fffdfd;
+}
+
+.hint { font: 13px system-ui; color: #796b6d; margin-top: 9px; }
+
+.arrange {
+  display: grid;
+  gap: 11px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.arr {
+  display: block;
+  padding: 15px;
+  border: 1px solid #ead7da;
+  border-radius: 16px;
+  background: white;
+  font: 15px system-ui;
+  cursor: pointer;
+}
+
+.arr input { accent-color: var(--rose); margin-right: 8px; }
+.success { font-size: 52px; color: var(--rose); }
+.small { font: 13px system-ui; color: #78696b; }
+
+@media (max-width: 520px) {
+  .options { grid-template-columns: 1fr; }
+  .card { padding: 23px 15px; }
+}
+</style>
+</head>
+
+<body>
+
+<section class="screen active" id="welcome">
+  <div class="card">
+    <div class="giftbox" id="giftbox" aria-label="Open the gift box">
+      <div class="box"></div>
+      <div class="ribbon"></div>
+      <div class="lid"></div>
+      <div class="bow"></div>
+      <div class="knot"></div>
+    </div>
+
+    <h1>Happy Birthday in advance mere kuchu puchu😚💎🌷🎀❤️</h1>
+    <div class="date">05 · 11 · 2026</div>
+    <p>Your special day is getting closer...</p>
+    <button class="primary" id="welcomeNext">Next →</button>
+  </div>
+</section>
+
+<section class="screen" id="gifts">
+  <div class="card">
+    <h2>Please choose freely whatever you want wrna me gussa ho jaungi 👀❤️🧿</h2>
+    <p class="small">Choose as many as you like.</p>
+
+    <div class="options" id="options"></div>
+
+    <div class="extra" id="keyExtra">
+      <label for="keyText">Anything specific for the keychain?</label>
+      <input id="keyText" type="text" placeholder="Type here...">
+    </div>
+
+    <div class="extra" id="otherExtra">
+      <label for="otherText">What else would you like?</label>
+      <textarea id="otherText" rows="3" placeholder="Tell me here..."></textarea>
+    </div>
+
+    <button class="primary disabled" id="giftNext">Next →</button>
+    <div class="hint" id="hint">Choose at least 3 options.</div>
+  </div>
+</section>
+
+<section class="screen" id="celebration">
+  <div class="card">
+    <h2>Where are we celebrating your b'day?</h2>
+
+    <div class="arrange">
+      <label class="arr">
+        <input type="radio" name="celebration" value="Not sure">
+        Not sure
+      </label>
+
+      <label class="arr">
+        <input type="radio" name="celebration" value="Type yourself">
+        Type yourself
+      </label>
+    </div>
+
+    <div class="extra" id="placeExtra">
+      <label for="placeText">Tell me where you're thinking...</label>
+      <textarea id="placeText" rows="3" placeholder="Type your idea here..."></textarea>
+    </div>
+
+    <button class="primary disabled" id="submit">Submit ❤️</button>
+  </div>
+</section>
+
+<section class="screen" id="thanks">
+  <div class="card">
+    <div class="success">♡</div>
+    <h2>Thank you ❤️</h2>
+    <p>Your choices have been received successfully.</p>
+    <div class="date">05 · 11 · 2026</div>
+  </div>
+</section>
+
+<script>
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxaRsp7vOzYN35wyNH2BpwPvOWdM8sfd8KPnaDW10FfYcNqD_6ikHhU9kOtqGUUN35dMA/exec";
+
+const names = [
+  "Shirt",
+  "Shoes",
+  "Perfume",
+  "Watch",
+  "Bracelet",
+  "Photo frame",
+  "Wallet",
+  "Bouquet",
+  "Keychain",
+  "T-shirt",
+  "Chocolates",
+  "Anything else — write ✨"
+];
+
+const specialIndex = names.length - 1;
+const keychainIndex = names.indexOf("Keychain");
+const chosen = new Set();
+const optionsBox = document.getElementById("options");
+
+names.forEach((name, index) => {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "opt" + (index === specialIndex ? " special" : "");
+  button.innerHTML = name + ' <span class="tick">✓</span>';
+
+  button.onclick = () => {
+    if (chosen.has(index)) chosen.delete(index);
+    else chosen.add(index);
+
+    button.classList.toggle("selected", chosen.has(index));
+
+    document.getElementById("keyExtra")
+      .classList.toggle("show", chosen.has(keychainIndex));
+
+    document.getElementById("otherExtra")
+      .classList.toggle("show", chosen.has(specialIndex));
+
+    updateGiftButton();
+
+    if (index === keychainIndex && chosen.has(index)) {
+      setTimeout(() => document.getElementById("keyText").focus(), 60);
+    }
+
+    if (index === specialIndex && chosen.has(index)) {
+      setTimeout(() => document.getElementById("otherText").focus(), 60);
+    }
+  };
+
+  optionsBox.appendChild(button);
+});
+
+function updateGiftButton() {
+  const regularCount = [...chosen].filter(index => index !== specialIndex).length;
+  const valid = chosen.has(specialIndex) || regularCount >= 3;
+
+  document.getElementById("giftNext").classList.toggle("disabled", !valid);
+
+  document.getElementById("hint").textContent = chosen.has(specialIndex)
+    ? "Anything else selected — you can continue with any number of choices."
+    : valid
+      ? "Ready to continue."
+      : "Choose at least 3 options.";
+}
+
+function show(id) {
+  document.querySelectorAll(".screen")
+    .forEach(screen => screen.classList.remove("active"));
+
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+document.getElementById("giftbox").onclick = () => {
+  document.getElementById("giftbox").classList.toggle("open");
+};
+
+document.getElementById("welcomeNext").onclick = () => show("gifts");
+
+document.getElementById("giftNext").onclick = () => {
+  if (!document.getElementById("giftNext").classList.contains("disabled")) {
+    show("celebration");
+  }
+};
+
+document.querySelectorAll('input[name="celebration"]').forEach(radio => {
+  radio.onchange = () => {
+    document.querySelectorAll(".arr")
+      .forEach(label => label.classList.remove("selected"));
+
+    radio.parentElement.classList.add("selected");
+
+    const custom = radio.value === "Type yourself";
+    document.getElementById("placeExtra").classList.toggle("show", custom);
+
+    document.getElementById("submit").classList.remove("disabled");
+
+    if (custom) {
+      setTimeout(() => document.getElementById("placeText").focus(), 60);
+    }
+  };
+});
+
+document.getElementById("submit").onclick = async () => {
+  const selectedCelebration =
+    document.querySelector('input[name="celebration"]:checked');
+
+  if (!selectedCelebration) return;
+
+  const submitButton = document.getElementById("submit");
+  if (submitButton.classList.contains("disabled")) return;
+
+  submitButton.classList.add("disabled");
+  submitButton.textContent = "Sending...";
+
+  const responseData = {
+    selectedGifts: [...chosen].map(index => names[index]).join(", "),
+
+    keychainDetails: chosen.has(keychainIndex)
+      ? document.getElementById("keyText").value.trim()
+      : "",
+
+    anythingElse: chosen.has(specialIndex)
+      ? document.getElementById("otherText").value.trim()
+      : "",
+
+    // Keep the existing Apps Script field names so the current
+    // Google Sheet integration can continue to use these values.
+    giftArrangement: selectedCelebration.value,
+
+    arrangementDetails: selectedCelebration.value === "Type yourself"
+      ? document.getElementById("placeText").value.trim()
+      : ""
+  };
+
+  try {
+    await fetch(BACKEND_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify(responseData),
+      mode: "no-cors"
+    });
+
+    show("thanks");
+  } catch (error) {
+    submitButton.classList.remove("disabled");
+    submitButton.textContent = "Submit ❤️";
+    alert("Something went wrong. Please try again.");
+  }
+};
+</script>
+
+</body>
+</html>
